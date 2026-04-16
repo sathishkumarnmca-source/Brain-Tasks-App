@@ -16,6 +16,8 @@ phases:
       - chmod +x kubectl
       - mv kubectl /usr/local/bin/
       - kubectl version --client
+      - echo "Login to DockerHub..."
+      - echo $DOCKERHUB_PASSWORD | docker login --username $DOCKERHUB_USERNAME --password-stdin
   build:
     commands:
       - echo "Build Docker image..."
