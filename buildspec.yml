@@ -7,14 +7,15 @@ env:
     AWS_DEFAULT_REGION: "us-east-1"
 
 phases:
-  pre_build:
+  install:
     commands:
-      - echo "Install kubectl..."
-      - curl -LO https://dl.k8s.io/release/v1.29.0/bin/linux/amd64/kubectl
+      - echo Installing kubectl...
+      - ARCH=$(uname -m)
+      - if [ "$ARCH" = "x86_64" ]; then ARCH=amd64; elif [ "$ARCH" = "aarch64" ]; then ARCH=arm64; fi
+      - curl -LO "https://dl.k8s.io/release/$(curl -sL https://dl.k8s.io/release/stable.txt)/bin/linux/$ARCH/kubectl"
       - chmod +x kubectl
       - mv kubectl /usr/local/bin/
-      - echo "Login to DockerHub..."
-      - echo $DOCKERHUB_PASSWORD | docker login --username $DOCKERHUB_USERNAME --password-stdin
+      - kubectl version --client
   build:
     commands:
       - echo "Build Docker image..."
@@ -34,4 +35,3 @@ phases:
 
 artifacts:
   files: []
-
