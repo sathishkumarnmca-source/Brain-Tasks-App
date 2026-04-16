@@ -16,4 +16,4 @@ spec:
       - name: brain-tasks
         image: sathishdocker3011/brain-tasks-app:latest
         ports:
-        - containerPort: 3003003000
+        - containerPort: 3000
