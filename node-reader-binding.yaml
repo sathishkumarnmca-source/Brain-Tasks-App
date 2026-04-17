@@ -1,0 +1,13 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: codebuild-node-reader
+subjects:
+- kind: User
+  name: arn:aws:sts::574748894319:assumed-role/codebuild-Brain-tasks-app-service-role/AWSCodeBuild-110c16d2-dfe1-4a9e-af16-f2aab7b88c23
+  apiGroup: rbac.authorization.k8s.io
+roleRef:
+  kind: ClusterRole
+  name: node-reader
+  apiGroup: rbac.authorization.k8s.io
+
