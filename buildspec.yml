@@ -6,22 +6,40 @@ env:
     DOCKERHUB_PASSWORD: "Admin@123"
     AWS_DEFAULT_REGION: "us-east-1"
 
-    version: 0.2
 phases:
-  pre_build:
+  install:
     commands:
-      - echo Logging in to Amazon ECR...
-      - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin sathishdocker3011.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com
+      - echo Installing kubectl...
+      - ARCH=$(uname -m)
+      - if [ "$ARCH" = "x86_64" ]; then ARCH=amd64; elif [ "$ARCH" = "aarch64" ]; then ARCH=arm64; fi
+      - curl -LO "https://dl.k8s.io/release/$(curl -sL https://dl.k8s.io/release/stable.txt)/bin/linux/$ARCH/kubectl"
+      - chmod +x kubectl
+      - mv kubectl /usr/local/bin/
+      - kubectl version --client
+      - echo "Login to DockerHub..."
+      - echo $DOCKERHUB_PASSWORD | docker login --username $DOCKERHUB_USERNAME --password-stdin
   build:
     commands:
-      - echo Build started on `date`
+      - echo "Build Docker image..."
       - docker build -t brain-tasks-app .
-      - docker tag brain-tasks-app:latest sathishdocker3011.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/brain-tasks-app:latest
+      - docker tag brain-tasks-app $DOCKERHUB_USERNAME/brain-tasks-app:latest
   post_build:
     commands:
-      - echo Pushing image to ECR...
-      - docker push sathishdocker3011.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/brain-tasks-app:latest
+      - echo "Push Docker image..."
+      - docker push $DOCKERHUB_USERNAME/brain-tasks-app:latest
+      - echo "Testing AWS credentials..."
+      - aws sts get-caller-identity
+      - echo "Update kubeconfig..."
+      - aws eks update-kubeconfig --name brain-tasks-cluster --region us-east-1
+      - echo "Verify connection to cluster..."
+      - kubectl get nodes
+      - echo "Deploy to EKS..."
       - kubectl apply -f deployment.yaml
+      - kubectl apply -f service.yaml
+      - kubectl get svc
+
+
 artifacts:
-  files:
-    - deployment.yaml
+  files: []
+
+
