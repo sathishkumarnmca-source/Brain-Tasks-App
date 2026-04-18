@@ -32,7 +32,6 @@ phases:
       - echo "Update kubeconfig..."
       - aws eks update-kubeconfig --name brain-tasks-cluster --region us-east-1
       - echo "Verify connection to cluster..."
-      - kubectl get nodes
       - echo "Deploy to EKS..."
       - kubectl apply -f deployment.yaml
       - kubectl apply -f service.yaml
