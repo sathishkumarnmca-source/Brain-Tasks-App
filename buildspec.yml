@@ -37,7 +37,6 @@ phases:
       - echo "Build Docker image..."
       - docker build -t brain-tasks-app .
       - docker tag brain-tasks-app $DOCKERHUB_USERNAME/brain-tasks-app:latest
-      - docker push brain-tasks-app $DOCKERHUB_USERNAME/brain_tasks-app:latest
   post_build:
     commands:
       - echo "Push Docker image..."
